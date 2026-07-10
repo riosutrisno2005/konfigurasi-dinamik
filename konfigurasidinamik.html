@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Routing Dinamis MikroTik – RIP & OSPF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #eef2f7;
+            color: #1a2c3e;
+            line-height: 1.7;
+            padding: 15px 10px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12);
+            padding: 25px 20px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            border-left: 6px solid #0077b6;
+            padding-left: 18px;
+            margin-bottom: 25px;
+            color: #023e5f;
+            word-break: break-word;
+        }
+        h2 {
+            font-size: 1.4rem;
+            margin: 35px 0 15px;
+            border-bottom: 2px solid #cbd5e1;
+            color: #0f4c5f;
+            padding-bottom: 6px;
+        }
+        h3 {
+            font-size: 1.15rem;
+            margin: 25px 0 10px;
+            color: #1e6f5c;
+        }
+        h4 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
+            color: #1a4b6d;
+        }
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+            text-indent: 0.4in;
+        }
+        p.no-indent {
+            text-indent: 0;
+        }
+        ul, ol {
+            margin: 0.75rem 0 1rem 1.5rem;
+        }
+        li {
+            margin: 0.5rem 0;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #b91c1c;
+            word-break: break-word;
+        }
+        i {
+            font-style: italic;
+            color: #0b4a6f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: center;
+        }
+        th {
+            background: #f1f5f9;
+            color: #023e5f;
+        }
+        figure {
+            margin: 25px 0;
+            text-align: center;
+            background: #fafcff;
+            border-radius: 16px;
+            padding: 12px;
+            border: 1px solid #d0dce8;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            display: block;
+            margin: 0 auto;
+        }
+        figcaption {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #2c6e9e;
+            font-style: italic;
+        }
+        .note-box {
+            background: #f0f7fc;
+            padding: 14px 18px;
+            border-left: 4px solid #0077b6;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .note-box strong {
+            color: #023e5f;
+        }
+        hr {
+            margin: 30px 0;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, #bfd9f0, transparent);
+        }
+        .footer {
+            font-size: 0.75rem;
+            text-align: center;
+            color: #2c6b84;
+            margin-top: 15px;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 18px 14px; }
+            h1 { font-size: 1.5rem; padding-left: 14px; }
+            h2 { font-size: 1.25rem; }
+            h3 { font-size: 1.05rem; }
+            p { text-indent: 0.2in; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 5px 6px; }
+            figure { padding: 6px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>⚙️ <i>Routing Dinamis</i> <i>MikroTik</i> – <i>RIP</i> &amp; <i>OSPF</i></h1>
+
+    <p class="no-indent"><i>Routing dinamis</i> adalah kemampuan <i>router</i> untuk membuat <i>tabel routing</i> secara otomatis berdasarkan lalu lintas jaringan dan <i>router</i> yang terhubung. Jika diartikan, <i>dinamis</i> adalah bisa berubah-ubah, sehingga <i>IP Address</i> (dalam konteks topologi) dapat menyesuaikan diri secara dinamis. Pada kesempatan ini akan dibahas dua jenis <i>routing dinamis</i> yang umum digunakan pada perangkat <i>MikroTik</i>, yaitu <i>Routing Information Protocol</i> (<i>RIP</i>) dan <i>Open Shortest Path First</i> (<i>OSPF</i>). Kedua <i>protokol</i> ini memiliki karakteristik, keunggulan, serta skenario penerapan yang berbeda, sehingga pemahaman mendalam tentang keduanya akan sangat membantu dalam merancang infrastruktur jaringan yang handal dan efisien.</p>
+
+    <hr>
+
+    <!-- ============================================================ -->
+    <!-- BAGIAN A : ROUTING DINAMIS RIP (TEORI)                        -->
+    <!-- ============================================================ -->
+    <h2>A. <i>Routing Dinamis</i> <i>RIP</i></h2>
+
+    <h3>1. Pengertian <i>Routing Information Protocol</i> (<i>RIP</i>)</h3>
+    <p><i>Routing Information Protocol</i> (<i>RIP</i>) adalah sebuah <i>protokol Dynamic Routing</i> yang digunakan dalam jaringan <i>LAN</i> (<i>Local Area Network</i>) maupun <i>WAN</i> (<i>Wide Area Network</i>). <i>Protokol</i> ini menggunakan <i>algoritme Distance-Vector Routing</i>, di mana setiap <i>router</i> hanya mengetahui jarak (<i>hop count</i>) dan arah (<i>vector</i>) menuju jaringan tujuan berdasarkan informasi yang diterima dari tetangga terdekatnya.</p>
+    <p>Seiring dengan perkembangan teknologi jaringan, <i>RIP</i> telah melalui beberapa kali pembaruan. Saat ini terdapat dua versi utama yang masih digunakan oleh banyak <i>network administrator</i>, yaitu <i>RIPv1</i> dan <i>RIPv2</i>. Meskipun secara teknis <i>RIP</i> telah dianggap usang (<i>legacy</i>) oleh teknik-teknik <i>routing</i> yang lebih maju seperti <i>Open Shortest Path First</i> (<i>OSPF</i>) dan <i>OSI IS-IS</i>, namun <i>RIP</i> tetap menjadi pilihan yang praktis untuk jaringan berskala kecil hingga menengah karena kesederhanaan konfigurasinya.</p>
+    <p><i>RIP</i> juga telah dikembangkan untuk mendukung jaringan <i>IPv6</i> yang dikenal dengan standar <i>RIPng</i> (<i>RIP Next Generation</i>). <i>RIPng</i> merupakan adaptasi dari <i>RIPv2</i> yang dirancang khusus untuk lingkungan <i>IPv6</i>, dengan beberapa penyesuaian pada format paket dan mekanisme otentikasi.</p>
+    <p><strong>Mekanisme Pencegahan <i>Loop</i> pada <i>RIP</i></strong><br>
+    <i>RIP</i> mencegah terjadinya <i>routing loop</i> dengan menerapkan batasan ketat pada jumlah <i>hop</i> yang diperbolehkan dalam sebuah <i>path</i> dari sumber ke tempat tujuan. Jumlah maksimum <i>hop</i> yang diizinkan adalah <strong>15</strong>. Batas ini secara langsung membatasi ukuran jaringan yang dapat mendukung <i>RIP</i>, karena jaringan dengan diameter lebih dari 15 <i>router</i> tidak akan dapat dijangkau. Sebuah <i>hop</i> dengan nilai <strong>16</strong> dianggap sebagai jarak yang tak terbatas (<i>infinite</i>) dan digunakan untuk menyatakan bahwa suatu rute tidak dapat diakses, sedang mengalami gangguan, atau tidak diinginkan dalam proses seleksi jalur.</p>
+
+    <h3>2. Versi-Versi <i>RIP</i></h3>
+
+    <h4>a. <i>RIPv1</i> (<i>RIP</i> versi 1)</h4>
+    <p><i>RIPv1</i> merupakan versi awal dari <i>protokol</i> ini yang masih menggunakan metode <i>routing class-full</i>. Artinya, <i>update routing</i> yang dikirimkan secara periodik tidak membawa informasi <i>subnet mask</i>, sehingga kurang mendukung <i>Variable Length Subnet Mask</i> (<i>VLSM</i>). Keterbatasan ini mengakibatkan semua <i>subnet</i> dalam satu kelas jaringan harus memiliki ukuran yang sama, sehingga alokasi alamat <i>IP</i> menjadi tidak efisien. Selain itu, <i>RIPv1</i> tidak memiliki dukungan <i>otentikasi</i> <i>router</i>, sehingga rentan terhadap berbagai serangan seperti <i>routing poisoning</i> atau <i>spoofing</i>.</p>
+
+    <h4>b. <i>RIPv2</i> (<i>RIP</i> versi 2)</h4>
+    <p>Karena keterbatasan <i>RIPv1</i>, maka dikembangkanlah <i>RIP</i> versi 2 (<i>RIPv2</i>) yang memiliki kemampuan untuk membawa informasi <i>subnet</i> dalam setiap paket <i>update</i>-nya. Dengan demikian, <i>RIPv2</i> mendukung <i>Classless Inter-Domain Routing</i> (<i>CIDR</i>) dan <i>VLSM</i>, sehingga pengelolaan alamat <i>IP</i> menjadi lebih fleksibel dan hemat. Untuk menjaga kompatibilitas dengan versi sebelumnya, batas maksimum 15 <i>hop</i> tetap dipertahankan.</p>
+    <p>Dalam upaya menghindari beban yang tidak perlu pada <i>host</i> yang tidak berpartisipasi dalam <i>routing</i>, <i>RIPv2</i> menggunakan metode <i>multicast</i> dengan alamat <strong>224.0.0.9</strong> untuk mengirimkan seluruh <i>tabel routing</i> ke semua <i>router</i> yang berdekatan. Hal ini berbeda dengan <i>RIPv1</i> yang masih menggunakan <i>broadcast</i> (255.255.255.255) yang kurang efisien. Selain itu, <i>RIPv2</i> juga mendukung <i>otentikasi</i> sederhana untuk meningkatkan keamanan pertukaran data <i>routing</i>.</p>
+
+    <h4>c. <i>RIPng</i> (<i>RIP Next Generation</i>)</h4>
+    <p><i>RIPng</i> adalah perluasan dari <i>RIPv2</i> yang dirancang khusus untuk mendukung <i>IPv6</i>, generasi <i>Internet Protocol</i> berikutnya. Beberapa perbedaan utama antara <i>RIPv2</i> dan <i>RIPng</i> adalah sebagai berikut:</p>
+    <ul>
+        <li><i>RIPng</i> mendukung jaringan <i>IPv6</i>, sedangkan <i>RIPv2</i> hanya untuk <i>IPv4</i>.</li>
+        <li><i>RIPv2</i> mendukung <i>otentikasi</i>, sedangkan <i>RIPng</i> tidak memiliki mekanisme <i>otentikasi</i> bawaan karena <i>IPv6</i> seharusnya menggunakan <i>IP Security</i> (<i>IPsec</i>) untuk keperluan <i>otentikasi</i> dan enkripsi.</li>
+        <li><i>RIPv2</i> memungkinkan pemberian beragam <i>tag</i> untuk rute, sedangkan <i>RIPng</i> tidak mendukung fitur ini.</li>
+        <li><i>RIPv2</i> meng-<i>encode</i> <i>next-hop</i> ke setiap <i>entry route</i>, sedangkan <i>RIPng</i> membutuhkan penyandian (<i>encoding</i>) tertentu dari <i>next-hop</i> untuk satu set <i>entry route</i> sekaligus.</li>
+    </ul>
+
+    <hr>
+
+    <!-- ============================================================ -->
+    <!-- BAGIAN B : STUDI KASUS RIP                                    -->
+    <!-- ============================================================ -->
+    <h2>B. Studi Kasus Konfigurasi <i>Routing Dinamis RIP</i> pada <i>MikroTik</i></h2>
+
+    <p>Pada bagian ini, kita akan mempelajari implementasi <i>routing RIP</i> dengan menggunakan 3 <i>router MikroTik</i>, di mana setiap <i>router</i> memiliki jaringan <i>LAN</i> sendiri. Tujuan akhir dari konfigurasi ini adalah agar setiap jaringan <i>LAN</i> dapat saling berkomunikasi satu sama lain melalui jalur <i>routing</i> yang dinamis.</p>
+
+    <!-- GAMBAR 1 : TOPOLOGI 3 ROUTER -->
+    <figure>
+        <img src="topologi-rip-3-router.png" alt="Topologi 3 Router untuk RIP">
+        <figcaption>Gambar 1 – Topologi Jaringan 3 <i>Router</i> untuk <i>RIP</i></figcaption>
+    </figure>
+
+    <h3>Alokasi <i>IP Address</i></h3>
+    <table>
+        <thead>
+            <tr>
+                <th><i>Router</i></th>
+                <th><i>Ether</i></th>
+                <th><i>IP Address</i></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="3"><i>MikroTik A</i></td>
+                <td><i>Eth 1</i></td>
+                <td>10.10.10.1/30</td>
+            </tr>
+            <tr>
+                <td><i>Eth 2</i></td>
+                <td>10.10.20.1/30</td>
+            </tr>
+            <tr>
+                <td><i>Eth 3</i></td>
+                <td>192.168.1.1/24</td>
+            </tr>
+            <tr>
+                <td rowspan="3"><i>MikroTik B</i></td>
+                <td><i>Eth 1</i></td>
+                <td>10.10.10.2/30</td>
+            </tr>
+            <tr>
+                <td><i>Eth 2</i></td>
+                <td>10.10.30.1/30</td>
+            </tr>
+            <tr>
+                <td><i>Eth 3</i></td>
+                <td>192.168.2.1/24</td>
+            </tr>
+            <tr>
+                <td><i>MikroTik C</i></td>
+                <td><i>Eth 1</i></td>
+                <td>10.10.30.2/30</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Langkah-Langkah Konfigurasi <i>RIP</i></h3>
+
+    <h4>1. Mengaktifkan <i>Routing RIP</i> pada <i>Interface Router</i></h4>
+    <p><i>Routing RIP</i> ditambahkan pada <i>interface</i> yang terhubung dengan <i>router RIP</i> lainnya. Untuk <i>interface</i> yang mengarah ke jaringan <i>LAN</i> (seperti <i>Eth 3</i> pada <i>MikroTik A</i> dan <i>MikroTik B</i>), tidak perlu menambahkan <i>interface RIP</i> karena tujuan akhirnya adalah agar jaringan <i>LAN</i> tersebut dapat diumumkan melalui <i>network</i> yang akan ditambahkan nanti. Penambahan <i>interface RIP</i> dilakukan melalui menu <i>Routing</i> → <i>RIP</i> → Tab <i>Interface</i>.</p>
+
+    <!-- GAMBAR 2 : INTERFACE RIP -->
+    <figure>
+        <img src="rip-interface-config.png" alt="Konfigurasi interface RIP">
+        <figcaption>Gambar 2 – Menambahkan <i>Interface</i> pada <i>RIP</i></figcaption>
+    </figure>
+
+    <p><strong>Pemilihan Versi <i>RIP</i></strong><br>
+    Kita dapat memilih versi <i>RIP</i> yang akan digunakan, terdapat tiga pilihan yaitu <i>v1</i>, <i>v1-2</i>, dan <i>v2</i>. Untuk mengatur versi <i>RIP</i>, isikan pada parameter <i>Received</i> dan <i>Send</i>. Disarankan menggunakan <i>v2</i> untuk mendukung <i>VLSM</i> dan <i>CIDR</i>.</p>
+
+    <p><strong>Autentikasi pada <i>RIP</i></strong><br>
+    Kita juga dapat menambahkan <i>autentikasi</i> pada <i>routing RIP</i> untuk meningkatkan keamanan. Ada 3 pilihan <i>autentikasi</i> yang bisa digunakan, yaitu:</p>
+    <ul>
+        <li><strong><i>none</i></strong> = tidak menggunakan <i>autentikasi</i> (<i>default</i>).</li>
+        <li><strong><i>simple</i></strong> = menggunakan <i>key autentikasi</i> berupa <i>plain text</i>.</li>
+        <li><strong><i>md5</i></strong> = menggunakan <i>key autentikasi</i> dengan <i>hash md5</i> yang lebih aman.</li>
+    </ul>
+
+    <h4>2. Menambahkan <i>Network</i></h4>
+    <p>Proses penambahan <i>network</i> bertujuan untuk mengenalkan jaringan <i>local</i> yang ada di <i>router</i> kita agar dapat diketahui oleh <i>router</i>-<i>router</i> yang lain. Penambahan <i>network</i> dilakukan melalui menu <i>Routing</i> → <i>RIP</i> → Tab <i>Network</i>. Tambahkan semua <i>IP Network</i> yang terdapat pada setiap <i>router</i>. Dalam studi kasus ini, terdapat tiga <i>IP network</i>, yaitu <i>network</i> untuk <i>ether1</i>, <i>ether2</i>, dan <i>ether3</i>, sehingga ketiganya harus ditambahkan.</p>
+
+    <!-- GAMBAR 3 : NETWORK RIP -->
+    <figure>
+        <img src="rip-network-add.png" alt="Menambahkan network pada RIP">
+        <figcaption>Gambar 3 – Menambahkan <i>IP Network</i> pada <i>RIP</i></figcaption>
+    </figure>
+
+    <!-- GAMBAR 4 : HASIL ROUTING RIP -->
+    <figure>
+        <img src="rip-routes-result.png" alt="Hasil routing RIP di IP Routes">
+        <figcaption>Gambar 4 – Tabel <i>Routing</i> menampilkan <i>flag</i> DAr (<i>Dynamic, Active, RIP</i>)</figcaption>
+    </figure>
+
+    <p>Proses yang sama dilakukan untuk <i>MikroTik B</i> dan <i>MikroTik C</i> dengan menyesuaikan <i>interface</i> dan <i>IP network</i> masing-masing. Tabel konfigurasi <i>RIP</i> untuk semua <i>router</i> adalah sebagai berikut:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th><i>Router</i></th>
+                <th><i>Ether</i></th>
+                <th><i>Received</i></th>
+                <th><i>Send</i></th>
+                <th><i>Autentikasi</i></th>
+                <th><i>Key</i></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="2"><i>MikroTik A</i></td>
+                <td><i>Eth 1</i></td>
+                <td><i>v2</i></td>
+                <td><i>v2</i></td>
+                <td><i>md5</i></td>
+                <td>123</td>
+            </tr>
+            <tr>
+                <td><i>Eth 2</i></td>
+                <td><i>v2</i></td>
+                <td><i>v2</i></td>
+                <td><i>md5</i></td>
+                <td>123</td>
+            </tr>
+            <tr>
+                <td rowspan="2"><i>MikroTik B</i></td>
+                <td><i>Eth 1</i></td>
+                <td><i>v2</i></td>
+                <td><i>v2</i></td>
+                <td><i>md5</i></td>
+                <td>123</td>
+            </tr>
+            <tr>
+                <td><i>Eth 2</i></td>
+                <td><i>v2</i></td>
+                <td><i>v2</i></td>
+                <td><i>md5</i></td>
+                <td>123</td>
+            </tr>
+            <tr>
+                <td><i>MikroTik C</i></td>
+                <td><i>Eth 1</i></td>
+                <td><i>v2</i></td>
+                <td><i>v2</i></td>
+                <td><i>md5</i></td>
+                <td>123</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="note-box">
+        <p><strong>✅ Hasil Akhir <i>RIP</i>:</strong> Sampai di sini, konfigurasi <i>RIP</i> sudah aktif dan setiap jaringan <i>LAN</i> dapat saling berkomunikasi. Pengujian dapat dilakukan dengan perintah <i>ping</i> antar <i>PC</i> yang berada di jaringan <i>LAN</i> yang berbeda.</p>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================ -->
+    <!-- BAGIAN C : ROUTING DINAMIS OSPF (TEORI)                      -->
+    <!-- ============================================================ -->
+    <h2>C. <i>Routing Dinamis</i> <i>OSPF</i></h2>
+
+    <h3>1. Pengertian <i>Open Shortest Path First</i> (<i>OSPF</i>)</h3>
+    <p><i>Open Shortest Path First</i> (<i>OSPF</i>) adalah sebuah <i>protokol Dynamic Routing</i> yang mampu menjaga, mengatur, dan mendistribusikan informasi <i>routing</i> antar <i>network</i> dengan mengikuti setiap perubahan jaringan secara dinamis. Misalnya, ketika sebuah <i>interface</i> tidak berfungsi, <i>OSPF</i> akan segera mendeteksi dan melakukan kalkulasi rute baru secara otomatis menggunakan <i>algoritma Dijkstra</i>.</p>
+    <p>Dalam <i>OSPF</i>, dikenal sebuah istilah penting yaitu <i><strong>Autonomous System</strong></i> (<i><strong>AS</strong></i>). <i>AS</i> adalah gabungan dari beberapa jaringan yang memiliki kesamaan metode serta <i>policy</i> pengaturan <i>network</i>, yang semuanya dapat dikendalikan oleh <i>network administrator</i>. <i>OSPF</i> termasuk dalam kategori <i><strong>Interior Gateway Protocol</strong></i> (<i><strong>IGP</strong></i>) yang memiliki kemampuan <i>Link-State</i> dan menggunakan <i>Algoritma Dijkstra</i> yang lebih efisien dibandingkan <i>protokol IGP</i> lainnya seperti <i>RIP</i>. <i>OSPF</i> menggunakan <i>protokol</i> nomor <strong>89</strong> dalam operasinya di lapisan <i>network</i>.</p>
+    <p><strong>Konsep <i>Link-State Advertisement</i> (<i>LSA</i>)</strong><br>
+    <i>OSPF</i> termasuk dalam <i>link-state routing protocol</i>. <i>LSA</i> (<i>Link State Advertisement</i>) adalah kumpulan informasi yang berisi tentang status <i>link</i> di setiap <i>router</i>. <i>LSA</i> inilah yang secara periodik dikirimkan ke <i>router</i> yang saling terhubung dalam sebuah <i>domain OSPF</i> tertentu. Setiap <i>LSA</i> berisi <i>link id</i>, <i>state of the link</i>, dan <i>cost</i> menuju <i>network</i> tetangga.</p>
+    <p><strong>Konsep <i>Area</i> dalam <i>OSPF</i></strong><br>
+    <i>OSPF</i> memiliki kemampuan pengelompokan terhadap <i>network</i> tertentu yang dikenal dengan istilah <i><strong>area</strong></i>. Topologi di sebuah <i>area</i> akan menyembunyikan informasi mengenai <i>area</i> tersebut dari <i>area</i> lainnya. Penyembunyian informasi ini menyebabkan penurunan yang signifikan terhadap trafik <i>routing</i> yang didistribusikan oleh setiap <i>router</i>, serta mengurangi beban perhitungan <i>SPF</i>. Fitur <i>area</i> ini sangat berguna untuk manajemen jaringan dalam skala yang sangat besar. Karena itulah, untuk mempermudah penambahan informasi <i>routing</i> dan mengurangi kesalahan distribusi, <i>OSPF</i> menjadi solusi yang sangat tepat bagi <i>network administrator</i>.</p>
+
+    <hr>
+
+    <!-- ============================================================ -->
+    <!-- BAGIAN D : STUDI KASUS OSPF                                  -->
+    <!-- ============================================================ -->
+    <h2>D. Studi Kasus Konfigurasi <i>Routing Dinamis OSPF</i> <i>MikroTik</i></h2>
+
+    <p>Pada bagian ini, kita akan mempelajari implementasi <i>routing OSPF</i> dengan menggunakan 4 <i>router MikroTik</i>, di mana setiap <i>router</i> memiliki jaringan <i>LAN</i> sendiri. Tujuannya adalah agar setiap jaringan <i>LAN</i> dapat saling berkomunikasi melalui jalur <i>routing</i> yang dinamis dan cepat.</p>
+
+    <h3>Alokasi <i>IP Address</i></h3>
+    <table>
+        <thead>
+            <tr>
+                <th><i>Router</i></th>
+                <th><i>Ether</i></th>
+                <th><i>IP Address</i></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><i>MikroTik A</i></td>
+                <td><i>Eth 5</i><br><i>Eth 2</i></td>
+                <td>10.10.10.1/29<br>192.168.1.1/24</td>
+            </tr>
+            <tr>
+                <td><i>MikroTik B</i></td>
+                <td><i>Eth 5</i><br><i>Eth 2</i></td>
+                <td>10.10.10.2/29<br>192.168.2.1/24</td>
+            </tr>
+            <tr>
+                <td><i>MikroTik C</i></td>
+                <td><i>Eth 5</i><br><i>Eth 2</i></td>
+                <td>10.10.10.3/29<br>192.168.3.1/24</td>
+            </tr>
+            <tr>
+                <td><i>MikroTik D</i></td>
+                <td><i>Eth 5</i><br><i>Eth 2</i></td>
+                <td>10.10.10.4/29<br>192.168.4.1/24</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Langkah-Langkah Konfigurasi <i>OSPF</i></h3>
+
+    <p>Secara umum, konfigurasi <i>OSPF</i> pada <i>MikroTik</i> dilakukan melalui menu <i>Routing</i> → <i>OSPF</i>. Berikut adalah tahapan yang perlu dilakukan:</p>
+
+    <h4>1. Menambahkan <i>Network</i> pada <i>OSPF</i></h4>
+    <p>Sama seperti pada <i>RIP</i>, langkah pertama adalah menambahkan <i>IP Network</i> yang terhubung langsung dengan <i>router</i>. Penambahan ini dilakukan melalui menu <i>Routing</i> → <i>OSPF</i> → Tab <i>Networks</i>. Tambahkan semua <i>network</i> yang ingin di-<i>advertise</i> (diumumkan) ke dalam <i>domain OSPF</i>. Dalam studi kasus ini, terdapat dua <i>IP network</i>, yaitu <i>network</i> untuk <i>ether5</i> (10.10.10.0/29) dan <i>network</i> untuk <i>ether2</i> (192.168.X.0/24).</p>
+
+    <!-- GAMBAR 5 : TOPOLOGI 4 ROUTER -->
+    <figure>
+        <img src="topologi-ospf-4-router.png" alt="Topologi 4 Router untuk OSPF">
+        <figcaption>Gambar 5 – Topologi Jaringan 4 <i>Router</i> untuk <i>OSPF</i></figcaption>
+    </figure>
+
+    <!-- GAMBAR 6 : NETWORK OSPF MIKROTIK A -->
+    <figure>
+        <img src="ospf-network-mikrotik-a.png" alt="Network OSPF MikroTik A">
+        <figcaption>Gambar 6 – Menambahkan <i>IP Network</i> pada <i>OSPF</i> <i>MikroTik A</i></figcaption>
+    </figure>
+
+    <!-- GAMBAR 7 : NETWORK OSPF MIKROTIK B -->
+    <figure>
+        <img src="ospf-network-mikrotik-b.png" alt="Network OSPF MikroTik B">
+        <figcaption>Gambar 7 – Menambahkan <i>IP Network</i> pada <i>OSPF</i> <i>MikroTik B</i></figcaption>
+    </figure>
+
+    <!-- GAMBAR 8 : NETWORK OSPF MIKROTIK C -->
+    <figure>
+        <img src="ospf-network-mikrotik-c.png" alt="Network OSPF MikroTik C">
+        <figcaption>Gambar 8 – Menambahkan <i>IP Network</i> pada <i>OSPF</i> <i>MikroTik C</i></figcaption>
+    </figure>
+
+    <!-- GAMBAR 9 : NETWORK OSPF MIKROTIK D -->
+    <figure>
+        <img src="ospf-network-mikrotik-d.png" alt="Network OSPF MikroTik D">
+        <figcaption>Gambar 9 – Menambahkan <i>IP Network</i> pada <i>OSPF</i> <i>MikroTik D</i></figcaption>
+    </figure>
+
+    <p>Setelah berhasil menambahkan <i>IP Network</i> di setiap <i>Router</i>, secara otomatis akan muncul <i>interface router</i> di mana <i>network</i> tersebut terpasang. Hal ini dapat dilihat pada menu <i>Routing</i> → <i>OSPF</i> → Tab <i
